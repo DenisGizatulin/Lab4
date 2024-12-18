@@ -1,9 +1,7 @@
 import telebot
 import requests
-
 import datetime
 from googletrans import Translator
-
 from telebot import types
 
 class SpaceBot:
@@ -18,17 +16,21 @@ class SpaceBot:
             self.bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}')
             self.menu(message)
 
-        @self.bot.callback_query_handler(func=lambda call: call.data in ['get_photo', 'people_in_space', 'photo_by_date'])
+        @self.bot.callback_query_handler(
+            func=lambda call: call.data in ['get_photo', 'people_in_space', 'photo_by_date', 'wiki'])
         def handle_query(call):
             if call.data == 'get_photo':
                 self.get_photo_of_the_day(call.message)
+                self.menu(call.message)  # Вернуться в меню после получения фото
             elif call.data == 'people_in_space':
                 self.people_in_space(call.message)
+                self.menu(call.message)  # Вернуться в меню после получения информации о людях в космосе
             elif call.data == 'photo_by_date':
                 self.bot.send_message(call.message.chat.id, "Введите дату в формате ГГГГ-ММ-ДД:")
                 self.bot.register_next_step_handler(call.message, self.process_date_input)
 
-    def menu(self, message):
+
+    def menu(self, message): # Реализация меню
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Космическое фото дня', callback_data='get_photo'))
         markup.add(types.InlineKeyboardButton('Сколько людей сейчас в космосе', callback_data='people_in_space'))
@@ -37,7 +39,7 @@ class SpaceBot:
 
 
 
-    def get_photo_of_the_day(self, message):
+    def get_photo_of_the_day(self, message): # Функция для получения фото дня
         url = 'https://api.nasa.gov/planetary/apod?api_key=wW8ahl4j6ZoIsbV7vJ9bbvh4Gagjy3nKhoV2hqiJ'
         res = requests.get(url)
 
@@ -67,16 +69,21 @@ class SpaceBot:
             data = res.json()
             image_url = data['url']
             explanation = data['explanation']
-
-            # Переводим описание на русский язык
             translated_explanation = self.translator.translate(explanation, dest='ru').text
 
-            # Отправляем фотографию и переведённое описание
-            self.bot.send_photo(message.chat.id, image_url, caption=translated_explanation)
+            # Проверяем длину переведенного объяснения
+            if len(translated_explanation) < 1024:
+                self.bot.send_photo(message.chat.id, image_url, caption=translated_explanation)
+            else:
+                # Отправляем картинку отдельно
+                self.bot.send_photo(message.chat.id, image_url)
+                # Отправляем текст отдельным сообщением
+                self.bot.send_message(message.chat.id, translated_explanation)
         else:
             self.bot.send_message(message.chat.id, "Не удалось получить данные о фотографии дня.")
 
-    def process_date_input(self, message):
+
+    def process_date_input(self, message): # Функция для корректного ввода данных
         date = message.text
         try:
             datetime.datetime.strptime(date, "%Y-%m-%d")
@@ -84,6 +91,7 @@ class SpaceBot:
         except ValueError:
             self.bot.send_message(message.chat.id, "Неверный формат даты. Пожалуйста, введите дату в формате ГГГГ-ММ-ДД.")
             self.bot.register_next_step_handler(message, self.process_date_input)
+
 
     def people_in_space(self, message):
         url = 'http://api.open-notify.org/astros.json'
@@ -108,7 +116,7 @@ class SpaceBot:
     def run(self):
         self.bot.polling()
 
-# Usage
+
 if __name__ == "__main__":
     api_token = '7734365936:AAEbWFKnjERHAWcfnONG4S0J_cC1bn0mhVg'
     space_bot = SpaceBot(api_token)
