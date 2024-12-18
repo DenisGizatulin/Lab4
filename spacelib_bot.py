@@ -83,7 +83,7 @@ class SpaceBot:
             )
 
     def get_photo_of_the_day_by_date(self, message, date):
-        # Формат даты должен быть 'YYYY-MM-DD'
+        # Формат даты должен быть 'ГГГГ-ММ-ДД'
         url = f"https://api.nasa.gov/planetary/apod?api_key=wW8ahl4j6ZoIsbV7vJ9bbvh4Gagjy3nKhoV2hqiJ&date={date}"
         res = requests.get(url)
 
@@ -140,7 +140,7 @@ class SpaceBot:
 
             for i, person in enumerate(
                 people, start=1
-            ):  # Используем enumerate для индексации
+            ):
                 response_text += f"{i}. {person['name']} на {'МКС' if person['craft'] == 'ISS' else 'Тяньгун'}\n"
 
             # Отправляем сообщение
