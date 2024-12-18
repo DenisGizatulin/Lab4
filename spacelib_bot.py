@@ -15,7 +15,7 @@ class SpaceBot:
         @self.bot.message_handler(commands=["start"])
         def main(message):
             self.bot.send_message(
-                message.chat.id, f"Привет, {message.from_user.first_name}"
+                message.chat.id, f"{message.from_user.first_name}! Приветствую тебя в моём боте о космосе! 🌠"
             )
             self.menu(message)
 
@@ -34,7 +34,7 @@ class SpaceBot:
                 )  # Вернуться в меню после получения информации о людях в космосе
             elif call.data == "photo_by_date":
                 self.bot.send_message(
-                    call.message.chat.id, "Введите дату в формате ГГГГ-ММ-ДД:"
+                    call.message.chat.id, "Введите дату в формате ГГГГ-ММ-ДД 📅:"
                 )
                 self.bot.register_next_step_handler(
                     call.message, self.process_date_input
@@ -44,16 +44,16 @@ class SpaceBot:
         markup = types.InlineKeyboardMarkup()
         markup.add(
             types.InlineKeyboardButton(
-                "Космическое фото дня", callback_data="get_photo"
+                "Космическое фото дня 🌌", callback_data="get_photo"
             )
         )
         markup.add(
             types.InlineKeyboardButton(
-                "Сколько людей сейчас в космосе", callback_data="people_in_space"
+                "Сколько людей сейчас в космосе🧑‍🚀", callback_data="people_in_space"
             )
         )
-        markup.add(types.InlineKeyboardButton("Дата", callback_data="photo_by_date"))
-        self.bot.send_message(message.chat.id, "Меню: ", reply_markup=markup)
+        markup.add(types.InlineKeyboardButton("Просмотреть космическое фото дня за определенную дату 📅", callback_data="photo_by_date"))
+        self.bot.send_message(message.chat.id, "Меню 📔: ", reply_markup=markup)
 
     def get_photo_of_the_day(self, message):  # Функция для получения фото дня
         url = "https://api.nasa.gov/planetary/apod?api_key=wW8ahl4j6ZoIsbV7vJ9bbvh4Gagjy3nKhoV2hqiJ"
@@ -79,7 +79,7 @@ class SpaceBot:
                 self.bot.send_message(message.chat.id, translated_explanation)
         else:
             self.bot.send_message(
-                message.chat.id, "Не удалось получить данные о фотографии дня."
+                message.chat.id, "Не удалось получить данные о фотографии дня. ❌"
             )
 
     def get_photo_of_the_day_by_date(self, message, date):
@@ -110,7 +110,7 @@ class SpaceBot:
             self.menu(message)
         else:
             self.bot.send_message(
-                message.chat.id, "Не удалось получить данные о фотографии дня."
+                message.chat.id, "Не удалось получить данные о фотографии дня. ❌"
             )
             # Вернуться в меню после ошибки
             self.menu(message)
@@ -123,7 +123,7 @@ class SpaceBot:
         except ValueError:
             self.bot.send_message(
                 message.chat.id,
-                "Неверный формат даты. Пожалуйста, введите дату в формате ГГГГ-ММ-ДД.",
+                "Неверный формат даты. ❌ Пожалуйста, введите дату в формате ГГГГ-ММ-ДД.",
             )
             self.bot.register_next_step_handler(message, self.process_date_input)
 
@@ -147,7 +147,7 @@ class SpaceBot:
             self.bot.send_message(message.chat.id, response_text)
         else:
             self.bot.send_message(
-                message.chat.id, "Не удалось получить данные о людях в космосе."
+                message.chat.id, "Не удалось получить данные о людях в космосе. ❌"
             )
 
     def run(self):
